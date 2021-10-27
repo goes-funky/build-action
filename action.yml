@@ -1,0 +1,48 @@
+name: "Skaffold Build"
+description: "Build and push Docker image using Skaffold"
+inputs:
+  gcp-project-id:
+    description: "GCP Project ID"
+    required: true
+  gcp-service-account:
+    description: "GCP Service Account Key"
+    required: true
+  skaffold-version:
+    description: "Skaffold Version"
+    required: true
+    default: "1.33.0"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: google-github-actions/setup-gcloud@v0.2.1
+      with:
+      project_id: ${{ inputs.gcp-project-id }}
+      service_account_key: ${{ inputs.gcp-service-account }}
+      export_default_credentials: true
+
+    - name: Configure Docker Auth
+      shell: bash
+      run: |
+        gcloud --quiet auth configure-docker eu.gcr.io
+
+    - uses: yokawasa/action-setup-kube-tools@v0.7.1
+      with:
+        setup-tools: "skaffold"
+        skaffold: "1.32.0"
+
+    - name: Build
+      shell: bash
+      run: |
+        skaffold build --cache-artifacts
+
+    - name: Push
+      shell: bash
+      run: |
+        skaffold build --cache-artifacts --file-output=build.json
+
+    - name: Archive build reference
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-ref
+        path: build.json
