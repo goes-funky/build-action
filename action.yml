@@ -17,9 +17,9 @@ runs:
   steps:
     - uses: google-github-actions/setup-gcloud@v0.2.1
       with:
-      project_id: ${{ inputs.gcp-project-id }}
-      service_account_key: ${{ inputs.gcp-service-account }}
-      export_default_credentials: true
+        project_id: ${{ inputs.gcp-project-id }}
+        service_account_key: ${{ inputs.gcp-service-account }}
+        export_default_credentials: true
 
     - name: Configure Docker Auth
       shell: bash
